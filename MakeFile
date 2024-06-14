@@ -1,0 +1,34 @@
+INC = -Isrc/external/include
+ARSENIC_INC = -Isrc/arsenic
+
+LIB = -Lsrc/external/lib
+
+ARSENIC = src/arsenic/*/*.c
+ARSENIC_C = src/arsenic/*.c
+MAIN = src/example/main.c
+STB_IMAGE = src/external/include/STB/stb_image.c
+
+OBJS = *.o
+OUT_LOC = bin/main
+
+all:
+	@echo "compiling .c files"
+	gcc -c $(ARSENIC) $(ARSENIC_C) $(STB_IMAGE) $(MAIN) $(INC) $(ARSENIC_INC)
+
+	@echo "linking .c files"
+	gcc $(LIB) -o $(OUT_LOC) $(OBJS) -lmingw32 -lSDL2main -lSDL2 -lopengl32 -lgdi32 -lglew32 -lglu32
+
+	@echo "running $(OUT_LOC).exe"
+	$(OUT_LOC).exe
+
+norun:
+	@echo "compiling .c files"
+	gcc -c $(ARSENIC) $(MAIN) $(INC) $(ARSENIC_INC)
+
+	@echo "linking .c files"
+	gcc $(LIB) -o $(OUT_LOC) $(OBJS) -lmingw32 -lSDL2main -lSDL2 -lopengl32 -lgdi32 -lglew32 -lglu32
+
+
+	
+
+
