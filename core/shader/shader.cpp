@@ -1,4 +1,7 @@
 #include "shader.h"
+Shader::Shader(){
+
+}
 
 Shader::Shader(const char* vertex_shader, const char* fragment_shader){
     u32 program = glCreateProgram();

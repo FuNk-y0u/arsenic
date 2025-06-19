@@ -5,6 +5,7 @@ class Shader{
     public:
         u32 id;
         Shader(const char* vertex_shader, const char* fragment_shader);
+        Shader();
 
         void compile_shader();
         void bind();

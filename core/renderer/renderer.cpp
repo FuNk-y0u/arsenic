@@ -1,7 +1,6 @@
 #include "renderer.h"
 
 Renderer::Renderer(Rspec specs) {
-
     this->vertices_count = 0;
     this->spec = specs;
     this->max_vertex_buffer_size = specs.max_vertices;
