@@ -6,26 +6,27 @@ Renderer::Renderer(Rspec specs) {
     this->max_vertex_buffer_size = specs.max_vertices;
     this->vertex_buffer_index = 0;
 
-    glGenVertexArrays(1, &this->vao);
-    glBindVertexArray(this->vao);
+    glc(glGenVertexArrays(1, &this->vao));
+    glc(glBindVertexArray(this->vao));
 
-    glGenBuffers(1, &this->vb);
-    glBindBuffer(GL_ARRAY_BUFFER, this->vb);
+    glc(glGenBuffers(1, &this->vb));
+    glc(glBindBuffer(GL_ARRAY_BUFFER, this->vb));
     
     i32 unit_size = 0;
+
     for (auto i = specs.format.begin(); i != specs.format.end(); ++i) {
         unit_size += sizeof(i->type) * i->count;
         this->vertices_count += i->count;
     }
 
-    glBufferData(GL_ARRAY_BUFFER, specs.max_vertices * unit_size, NULL, GL_DYNAMIC_DRAW);
+    glc(glBufferData(GL_ARRAY_BUFFER, specs.max_vertices * unit_size, NULL, GL_DYNAMIC_DRAW));
     
     i32 stride = 0;
     i32 count = 0;
 
     for (auto i = specs.format.begin(); i != specs.format.end(); ++i) {
-       glEnableVertexAttribArray(count);
-       glVertexAttribPointer(count, i->count, i->type, GL_FALSE, unit_size, (const void*) stride);
+       glc(glEnableVertexAttribArray(count));
+       glc(glVertexAttribPointer(count, i->count, i->type, GL_FALSE, unit_size, (const void*) stride));
        stride += sizeof(i->type) * i->count;
     }
 
@@ -35,28 +36,27 @@ Renderer::Renderer(Rspec specs) {
 
     this->render_shader = shader;
 
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glc(glBindVertexArray(0));
+    glc(glBindBuffer(GL_ARRAY_BUFFER, 0));
 }
 
 void Renderer::begin() {
     this->vertex_buffer_index = 0;
-    glClear(GL_COLOR_BUFFER_BIT);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glBindBuffer(GL_ARRAY_BUFFER, this->vb);
-    glBindVertexArray(this->vao);
+    glc(glClear(GL_COLOR_BUFFER_BIT));
+    glc(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
+    glc(glBindBuffer(GL_ARRAY_BUFFER, this->vb));
+    glc(glBindVertexArray(this->vao));
     this->render_shader.bind();
 }
 
 void Renderer::end() {
-    glBufferSubData(GL_ARRAY_BUFFER, 0, this->vertex_buffer_index * sizeof(f32), this->vertex_buffer);
-    glDrawArrays(GL_TRIANGLES, 0, this->vertex_buffer_index / this->vertices_count);
+    glc(glBufferSubData(GL_ARRAY_BUFFER, 0, this->vertex_buffer_index * sizeof(f32), this->vertex_buffer));
+    glc(glDrawArrays(GL_TRIANGLES, 0, this->vertex_buffer_index / this->vertices_count));
 }
 
 void Renderer::push_vertices(Vertices& vertices) {
 
     for (auto i = vertices.begin(); i != vertices.end(); ++i) {
-
         if(this->vertex_buffer_index / this->vertices_count >= this->max_vertex_buffer_size) {
             this->end();
             this->begin();

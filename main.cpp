@@ -11,9 +11,9 @@ int main()
 
     const char* vertex_shader = 
 "#version 430 core\n"
-"layout(location=0) in vec3 position;\n"
+"layout(location=0) in vec2 position;\n"
 "void main(){\n"
-"   gl_Position = position;\n"
+"   gl_Position = vec4(position, 0.0f, 1.0f);\n"
 "}\n";
 
     const char* fragment_shader= 

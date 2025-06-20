@@ -6,13 +6,15 @@ Shader::Shader(){
 Shader::Shader(const char* vertex_shader, const char* fragment_shader){
     u32 program = glCreateProgram();
 
-    u32 vs = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vs, 1, &vertex_shader, NULL);
+    u32 vs = glc(glCreateShader(GL_VERTEX_SHADER));
+    glc(glShaderSource(vs, 1, &vertex_shader, NULL));
 
-    u32 fs = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fs, 1, &fragment_shader, NULL);
+    u32 fs = glc(glCreateShader(GL_FRAGMENT_SHADER));
+    glc(glShaderSource(fs, 1, &fragment_shader, NULL));
 
     this->id = program;
+    this->fs = fs;
+    this->vs = vs;
 
 }
 
@@ -21,18 +23,18 @@ void Shader::compile_shader(){
     u32 fs = this->fs;
     u32 vs = this->vs;
 
-    glCompileShader(fs);
-    glCompileShader(vs);
+    glc(glCompileShader(fs));
+    glc(glCompileShader(vs));
     
     int vs_result, vs_length;
-    glGetShaderiv(vs, GL_COMPILE_STATUS, &vs_result);
+    glc(glGetShaderiv(vs, GL_COMPILE_STATUS, &vs_result));
 
     if(vs_result == GL_FALSE){
-        glGetShaderiv(vs, GL_INFO_LOG_LENGTH, &vs_length);
+        glc(glGetShaderiv(vs, GL_INFO_LOG_LENGTH, &vs_length));
 
         char vs_message[vs_length];
 
-        glGetShaderInfoLog(vs, vs_length, &vs_length, vs_message);
+        glc(glGetShaderInfoLog(vs, vs_length, &vs_length, vs_message));
 
         std::cout << "FAILED TO COMPILE VERTEX SHADER" << std::endl;
 
@@ -41,14 +43,14 @@ void Shader::compile_shader(){
     }
 
     int fs_result, fs_length;
-    glGetShaderiv(fs, GL_COMPILE_STATUS, &fs_result);
+    glc(glGetShaderiv(fs, GL_COMPILE_STATUS, &fs_result));
 
     if(vs_result == GL_FALSE){
-        glGetShaderiv(fs, GL_INFO_LOG_LENGTH, &fs_length);
+        glc(glGetShaderiv(fs, GL_INFO_LOG_LENGTH, &fs_length));
 
         char fs_message[fs_length];
 
-        glGetShaderInfoLog(fs, fs_length, &fs_length, fs_message);
+        glc(glGetShaderInfoLog(fs, fs_length, &fs_length, fs_message));
 
         std::cout << "FAILED TO COMPILE FRAGMENT SHADER" << std::endl;
 
@@ -56,22 +58,22 @@ void Shader::compile_shader(){
 
     }
 
-    glAttachShader(this->id, this->vs);
-    glAttachShader(this->id, this->fs);
+    glc(glAttachShader(this->id, this->vs));
+    glc(glAttachShader(this->id, this->fs));
 
-    glLinkProgram(this->id);
-    glValidateProgram(this->id);
+    glc(glLinkProgram(this->id));
+    glc(glValidateProgram(this->id));
 
-    glDeleteShader(vs);
-    glDeleteShader(fs);
+    glc(glDeleteShader(vs));
+    glc(glDeleteShader(fs));
 
-    glUseProgram(0);
+    glc(glUseProgram(0));
 
 }
 
 void Shader::bind(){
-    glUseProgram(this->id);
+    glc(glUseProgram(this->id));
 }
 void Shader::unbind(){
-    glUseProgram(0);
+    glc(glUseProgram(0));
 }

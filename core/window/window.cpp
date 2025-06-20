@@ -30,7 +30,3 @@ Window::Window(std::string name, int width, int height){
 
 }
 
-
-Window::~Window(){
-
-}

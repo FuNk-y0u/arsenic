@@ -1,5 +1,6 @@
 #pragma once
 #include <common.h>
+#include <error/error.h>
 
 class Shader{
     public:

@@ -1,6 +1,7 @@
 #pragma once
 #include <common.h>
 #include <shader/shader.h>
+#include <error/error.h>
 
 struct Rformat {
     u32 type;
@@ -30,7 +31,8 @@ class Renderer{
         f32* vertex_buffer;
         i32 vertex_buffer_index;
         i32 max_vertex_buffer_size;
-
+    
+        // TODO Find a way to fix this? kinda sketchy
         Shader render_shader;
 
     public:
