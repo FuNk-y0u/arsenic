@@ -5,6 +5,7 @@ Renderer::Renderer(Rspec specs) {
     this->spec = specs;
     this->max_vertex_buffer_size = specs.max_vertices;
     this->vertex_buffer_index = 0;
+    
 
     glc(glGenVertexArrays(1, &this->vao));
     glc(glBindVertexArray(this->vao));
@@ -19,6 +20,7 @@ Renderer::Renderer(Rspec specs) {
         this->vertices_count += i->count;
     }
 
+    this->vertex_buffer =(float*) malloc(specs.max_vertices * unit_size);
     glc(glBufferData(GL_ARRAY_BUFFER, specs.max_vertices * unit_size, NULL, GL_DYNAMIC_DRAW));
     
     i32 stride = 0;
@@ -55,13 +57,14 @@ void Renderer::end() {
 }
 
 void Renderer::push_vertices(Vertices& vertices) {
-
     for (auto i = vertices.begin(); i != vertices.end(); ++i) {
         if(this->vertex_buffer_index / this->vertices_count >= this->max_vertex_buffer_size) {
             this->end();
             this->begin();
         }
+
         this->vertex_buffer[this->vertex_buffer_index] = *i;
+
         this->vertex_buffer_index += 1;
     } 
 }

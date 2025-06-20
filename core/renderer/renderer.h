@@ -32,6 +32,7 @@ class Renderer{
         i32 vertex_buffer_index;
         i32 max_vertex_buffer_size;
     
+    public:
         // TODO Find a way to fix this? kinda sketchy
         Shader render_shader;
 
