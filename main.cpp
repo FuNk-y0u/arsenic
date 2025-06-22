@@ -9,7 +9,6 @@ int main()
     
     SDL_Event window_event;
 
-    f32 offset = 0.0f;
 
     const char* vertex_shader = 
 "#version 430 core\n"
@@ -36,12 +35,25 @@ int main()
     );
 
     Vertices positions = { 0.0f,  0.5f, -0.5f, -0.5f, 0.5f, -0.5f};
+
+    f32 offset = -1.50f;
    
 
     while (running) {
         if(SDL_PollEvent(&window_event)){
             if(SDL_QUIT == window_event.type) {
                 running = false;
+            }
+
+            if(window_event.type == SDL_KEYDOWN){
+                switch (window_event.key.keysym.sym) {
+                    case SDLK_w:
+                        offset -= 0.01f;
+                        break;
+                    case SDLK_s:
+                        offset += 0.01f;
+                        break;
+                }
             }
         }
         
@@ -67,7 +79,7 @@ int main()
         }
         
         glm::mat4 perspective_matrix = glm::perspective(glm::radians(45.0f), (float)640/(float)480, 0.1f, 10.0f);
-        glm::mat4 model_matrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.2f));
+        glm::mat4 model_matrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, offset));
 
         glUniformMatrix4fv(model_matrix_location, 1, GL_FALSE, &model_matrix[0][0]);
         glUniformMatrix4fv(perspective_matrix_location, 1, GL_FALSE, &perspective_matrix[0][0]);
