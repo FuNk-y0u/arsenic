@@ -1,5 +1,7 @@
 #include <iostream>
 #include <core.h>
+#define sens 2.0f
+
 
 int main()
 {
@@ -37,14 +39,24 @@ int main()
 
     Vertices positions = { 0.0f,  0.5f, -0.5f, -0.5f, 0.5f, -0.5f};
 
-    f32 offset = -1.50f;
-
     glm::vec3 cam_pos = glm::vec3(0.0f, 0.0f, 5.0f);
-    glm::vec3 center = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::vec3 center = glm::vec3(0.0f, 0.0f, -1.0f);
     glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-   
+
+    int mouse_x, mouse_y;
+
+    mouse_x = 0;
+    mouse_y = 0;
+    SDL_SetRelativeMouseMode(SDL_TRUE);
+    f32 offset = 0.0f;
+
+    f32 pitch = 0.0f;
 
     while (running) {
+        
+
+        std::cout << mouse_x << std::endl;
+
         if(SDL_PollEvent(&window_event)){
             if(SDL_QUIT == window_event.type) {
                 running = false;
@@ -53,11 +65,31 @@ int main()
             if(window_event.type == SDL_KEYDOWN){
                 switch (window_event.key.keysym.sym) {
                     case SDLK_w:
-                        offset -= 0.01f;
+                        cam_pos +=  center;
                         break;
                     case SDLK_s:
-                        offset += 0.01f;
+                        cam_pos -= center;
                         break;
+                    case SDLK_a:
+                        cam_pos += glm::cross(up, center);
+                        break;
+                    case SDLK_d:
+                        cam_pos += glm::cross(center, up);
+                        break;
+                }
+            }
+            if(window_event.type == SDL_MOUSEMOTION){
+                mouse_x = window_event.motion.xrel;
+                mouse_y = window_event.motion.yrel;
+
+
+                center = glm::rotate(center, glm::radians((float)(mouse_x * 0.4)), up); // yaw
+                if(pitch < 89.0f){
+                    pitch += mouse_y;
+                    center = glm::rotate(center, glm::radians((float)(mouse_y * 0.4)), glm::cross(center, up));
+                }
+                else{
+                    pitch = 89.0f;
                 }
             }
         }
@@ -93,8 +125,8 @@ int main()
         }
         
         glm::mat4 perspective_matrix = glm::perspective(glm::radians(45.0f), (float)640/(float)480, 0.1f, 10.0f);
-        glm::mat4 model_matrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, offset));
-        glm::mat4 view_matrix = glm::lookAt(cam_pos, center, up);
+        glm::mat4 model_matrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -1.5f));
+        glm::mat4 view_matrix = glm::lookAt(cam_pos,cam_pos + center, up);
 
         glUniformMatrix4fv(model_matrix_location, 1, GL_FALSE, &model_matrix[0][0]);
         glUniformMatrix4fv(perspective_matrix_location, 1, GL_FALSE, &perspective_matrix[0][0]);
