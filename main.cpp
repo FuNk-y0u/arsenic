@@ -1,7 +1,8 @@
 #include <iostream>
 #include <core.h>
-#define sens 2.0f
 
+#define sens 0.5f
+#define speed 0.01f
 
 int main()
 {
@@ -40,61 +41,112 @@ int main()
     Vertices positions = { 0.0f,  0.5f, -0.5f, -0.5f, 0.5f, -0.5f};
 
     glm::vec3 cam_pos = glm::vec3(0.0f, 0.0f, 5.0f);
-    glm::vec3 center = glm::vec3(0.0f, 0.0f, -1.0f);
+    glm::vec3 center = glm::vec3(0.0f, 0.0f, 0.0f);
     glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 
     int mouse_x, mouse_y;
 
     mouse_x = 0;
     mouse_y = 0;
-    SDL_SetRelativeMouseMode(SDL_TRUE);
     f32 offset = 0.0f;
 
+    f32 yaw = -90.0f;
     f32 pitch = 0.0f;
+
+    SDL_SetRelativeMouseMode(SDL_TRUE);
+
+    bool forward = false;
+    bool backwards = false;
+    bool left = false;
+    bool right = false;
 
     while (running) {
         
-
-        std::cout << mouse_x << std::endl;
-
         if(SDL_PollEvent(&window_event)){
             if(SDL_QUIT == window_event.type) {
                 running = false;
             }
 
+            mouse_x = window_event.motion.xrel;
+            mouse_y = window_event.motion.yrel; 
+
             if(window_event.type == SDL_KEYDOWN){
                 switch (window_event.key.keysym.sym) {
                     case SDLK_w:
-                        cam_pos +=  center;
+                        forward = true;
                         break;
                     case SDLK_s:
-                        cam_pos -= center;
+                        backwards = true;
                         break;
                     case SDLK_a:
-                        cam_pos += glm::cross(up, center);
+                        left = true;
                         break;
                     case SDLK_d:
-                        cam_pos += glm::cross(center, up);
+                        right = true;
                         break;
+                }
+
+            }
+
+            if(window_event.type == SDL_KEYUP){
+                switch(window_event.key.keysym.sym){
+                    case SDLK_w:
+                        forward = false;
+                        break;
+                    case SDLK_s:
+                        backwards = false;
+                        break;
+                    case SDLK_a:
+                        left = false;
+                        break;
+                    case SDLK_d:
+                        right = false;
+                        break;
+
                 }
             }
             if(window_event.type == SDL_MOUSEMOTION){
-                mouse_x = window_event.motion.xrel;
-                mouse_y = window_event.motion.yrel;
 
-
-                center = glm::rotate(center, glm::radians((float)(mouse_x * 0.4)), up); // yaw
-                if(pitch < 89.0f){
-                    pitch += mouse_y;
-                    center = glm::rotate(center, glm::radians((float)(mouse_y * 0.4)), glm::cross(center, up));
-                }
-                else{
+                glm::vec3 direction; 
+                
+                yaw += mouse_x * sens;
+                pitch += mouse_y * sens;
+                
+                if (pitch > 89.0f)
                     pitch = 89.0f;
-                }
-            }
-        }
-        
+                if (pitch < -89.0f)
+                    pitch = -89.0f;
 
+                direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+                direction.y = sin(glm::radians(pitch));
+                direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+                center = glm::normalize(direction); 
+            }
+
+           
+
+        }
+
+        if(forward == true)
+        {
+            cam_pos +=  center * speed;
+        }
+
+        if(backwards == true)
+        {
+            cam_pos -= center * speed;
+        }
+
+        if(left == true)
+        {
+            cam_pos += glm::cross(up, center) * speed;
+        }
+
+        if(right == true)
+        {
+
+            cam_pos += glm::cross(center, up) * speed;
+        }
         renderer.begin();
 
         renderer.push_vertices(positions);
@@ -124,7 +176,7 @@ int main()
             std::cout << "UNIFORM: Canoot find u_ViewMatrix" << std::endl;
         }
         
-        glm::mat4 perspective_matrix = glm::perspective(glm::radians(45.0f), (float)640/(float)480, 0.1f, 10.0f);
+        glm::mat4 perspective_matrix = glm::perspective(glm::radians(45.0f), (float)640/(float)480, 0.1f, 100.0f);
         glm::mat4 model_matrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -1.5f));
         glm::mat4 view_matrix = glm::lookAt(cam_pos,cam_pos + center, up);
 
