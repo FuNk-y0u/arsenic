@@ -3,6 +3,7 @@
 #include "shader/shader.h"
 #include "camera/camera.h"
 #include "error/error.h"
+#include "texture/texture.h"
 
 
 

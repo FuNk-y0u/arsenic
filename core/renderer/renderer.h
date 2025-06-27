@@ -42,9 +42,11 @@ class Renderer{
     
     public:
         Shader render_shader;
+
         Renderer(Rspec specs);
         void push_vertices(Vertices& vertices);
         void begin();
         void end();
+        ~Renderer();
 };
 

@@ -1,12 +1,11 @@
 #include <iostream>
 #include <core.h>
 
-#define sens 0.1f
-#define speed 0.01f
+#include "config.h"
 
 int main()
 {
-    Window main_window = Window("Arsenic v0.0.1", 640, 480);
+    Window main_window = Window("Arsenic v0.0.1", WIDTH, HEIGHT);
     
     bool running = true;
     
@@ -16,40 +15,57 @@ int main()
     const char* vertex_shader = 
 "#version 430 core\n"
 "layout(location=0) in vec2 position;\n"
+"layout(location=1) in vec2 tex_coords;\n"
+"layout(location=2) in float tex_id;\n"
+
 "uniform mat4 u_ModelMatrix;\n"
 "uniform mat4 u_PerspectiveMatrix;\n"
 "uniform mat4 u_ViewMatrix;\n"
+"out vec2 v_tex_coords;\n"
+"out float v_tex_id;\n"
 "void main(){\n"
 "   gl_Position = u_PerspectiveMatrix * u_ViewMatrix * u_ModelMatrix * vec4(position, 0.0f, 1.0f);\n"
+"   v_tex_coords = tex_coords;\n"
+"   v_tex_id = tex_id;\n"
 "}\n";
 
     const char* fragment_shader= 
 "#version 430 core\n"
 "layout(location=0) out vec4 color;\n"
+"in vec2 v_tex_coords;\n"
+"in float v_tex_id;\n"
+
+"uniform sampler2D textures[32];\n"
 "void main(){\n"
+"   int id = int(v_tex_id);\n"
+"   //color = texture(textures[id], v_tex_coords);\n"
 "   color = vec4(1.0f, 1.0f, 1.0f, 1.0f);\n"
 "}\n";
 
     Renderer renderer = Renderer(
         (Rspec) {
-            { {GL_FLOAT,2} },
+            { {GL_FLOAT,2}, {GL_FLOAT, 2}, {GL_FLOAT, 1} },
             1000,
             { .vertex_shader = vertex_shader, .fragment_shader = fragment_shader} 
         }
     );
 
-    Vertices positions = { 0.0f,  0.5f, -0.5f, -0.5f, 0.5f, -0.5f};
-    
-    Camera cam = Camera(80.0f, (float)640/(float)480, 0.1f, 50.0f, glm::vec3(0.0f, 0.0f, 5.0f));
+    Vertices positions = {
+    // Position      // TexCoord
+    -0.5f, -0.5f,     0.0f, 0.0f, 1.0f,  // Bottom-left
+    -0.5f,  0.5f,     0.0f, 1.0f,  1.0f,// Top-left
+     0.5f,  0.5f,     1.0f, 1.0f,  1.0f,// Top-right
 
-    glm::vec3 cam_pos = glm::vec3(0.0f, 0.0f, 5.0f);
-    glm::vec3 center = glm::vec3(0.0f, 0.0f, 0.0f);
-    glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+    -0.5f, -0.5f,     0.0f, 0.0f,  1.0f, // Bottom-left
+     0.5f,  0.5f,     1.0f, 1.0f,  1.0f, // Top-right
+     0.5f, -0.5f,     1.0f, 0.0f,   1.0f// Bottom-right    
+    };
+
+    Texture tex = Texture("bin/error.png", true);
+    
+    Camera cam = Camera(80.0f, (float)WIDTH/(float)HEIGHT, NEAR_PLANE, FAR_PLANE, glm::vec3(0.0f, 0.0f, 5.0f));
 
     int mouse_x, mouse_y;
-
-    mouse_x = 0;
-    mouse_y = 0;
 
     SDL_SetRelativeMouseMode(SDL_TRUE);
 
@@ -57,6 +73,13 @@ int main()
     bool backwards = false;
     bool left = false;
     bool right = false;
+
+    i32 samplers[32];
+
+    for (int i = 0; i < 32; i++) {
+        samplers[i] = i;
+    }
+
 
     while (running) {
         
@@ -108,7 +131,7 @@ int main()
                 glm::vec3 direction; 
                 
                 cam.yaw += mouse_x * sens;
-                cam.pitch += mouse_y * sens;
+                cam.pitch -= mouse_y * sens;
                 
                 if (cam.pitch > 89.0f)
                     cam.pitch = 89.0f;
@@ -146,7 +169,16 @@ int main()
 
         renderer.begin();
 
+        tex.bind();
+
         renderer.push_vertices(positions);
+
+        i32 tex_loc = glc(glGetUniformLocation(renderer.render_shader.id, "textures"));
+        if (tex_loc < 0) {
+            std::cout << "ERROR: Counot find uniform location for textures" << std::endl;
+        }
+        glc(glUniform1iv(tex_loc, 32, &samplers[0]));
+
         cam.update(&renderer);
 
         renderer.end();

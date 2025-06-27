@@ -4,7 +4,7 @@ BIN = bin/
 
 OUT = main
 
-FILES = main.cpp core/window/window.cpp vendor/glad/glad.c core/renderer/renderer.cpp core/shader/shader.cpp core/error/error.cpp core/camera/camera.cpp
+FILES = main.cpp core/window/window.cpp vendor/glad/glad.c core/renderer/renderer.cpp core/shader/shader.cpp core/error/error.cpp core/camera/camera.cpp vendor/stbi_image/stbi_image.cpp core/texture/texture.cpp
 
 INC = core/
 

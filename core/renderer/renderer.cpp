@@ -10,7 +10,7 @@ Renderer::Renderer(Rspec specs) {
     this->spec = specs;
     this->max_vertex_buffer_size = specs.max_vertices;
     this->vertex_buffer_index = 0;
-    this->vertex_buffer =(float*) malloc(specs.max_vertices * unit_size);
+    this->vertex_buffer = (float*) malloc(specs.max_vertices * unit_size);
     this->render_shader = Shader(this->spec.shader_src.vertex_shader, this->spec.shader_src.fragment_shader);
     this->render_shader.compile();
     
@@ -69,5 +69,9 @@ void Renderer::push_vertices(Vertices& vertices) {
         this->vertex_buffer[this->vertex_buffer_index] = *i;
         this->vertex_buffer_index += 1;
     } 
+}
+
+Renderer::~Renderer(){
+    free(this->vertex_buffer);
 }
 
