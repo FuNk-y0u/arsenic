@@ -23,20 +23,25 @@ typedef std::vector<f32> Vertices;
 
 class Renderer{
     private:
+        // Renderer specifications 
         Rspec spec;
+
+        // Vertex Buffer / Vertex Arrays
         u32 vb;
         u32 vao;
+        
+        // No of vertices in the array buffer
         u32 vertices_count;
-
+        
         f32* vertex_buffer;
+
+        // Index of index of buffer when writing to the vertex buffer 
         i32 vertex_buffer_index;
+        
         i32 max_vertex_buffer_size;
     
     public:
-        // TODO Find a way to fix this? kinda sketchy
         Shader render_shader;
-
-    public:
         Renderer(Rspec specs);
         void push_vertices(Vertices& vertices);
         void begin();

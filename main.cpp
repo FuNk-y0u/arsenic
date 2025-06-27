@@ -1,7 +1,7 @@
 #include <iostream>
 #include <core.h>
 
-#define sens 0.5f
+#define sens 0.1f
 #define speed 0.01f
 
 int main()
@@ -39,6 +39,8 @@ int main()
     );
 
     Vertices positions = { 0.0f,  0.5f, -0.5f, -0.5f, 0.5f, -0.5f};
+    
+    Camera cam = Camera(80.0f, (float)640/(float)480, 0.1f, 50.0f, glm::vec3(0.0f, 0.0f, 5.0f));
 
     glm::vec3 cam_pos = glm::vec3(0.0f, 0.0f, 5.0f);
     glm::vec3 center = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -48,10 +50,6 @@ int main()
 
     mouse_x = 0;
     mouse_y = 0;
-    f32 offset = 0.0f;
-
-    f32 yaw = -90.0f;
-    f32 pitch = 0.0f;
 
     SDL_SetRelativeMouseMode(SDL_TRUE);
 
@@ -109,81 +107,47 @@ int main()
 
                 glm::vec3 direction; 
                 
-                yaw += mouse_x * sens;
-                pitch += mouse_y * sens;
+                cam.yaw += mouse_x * sens;
+                cam.pitch += mouse_y * sens;
                 
-                if (pitch > 89.0f)
-                    pitch = 89.0f;
-                if (pitch < -89.0f)
-                    pitch = -89.0f;
+                if (cam.pitch > 89.0f)
+                    cam.pitch = 89.0f;
+                if (cam.pitch < -89.0f)
+                    cam.pitch = -89.0f;
 
-                direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-                direction.y = sin(glm::radians(pitch));
-                direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-                center = glm::normalize(direction); 
+                direction.x = cos(glm::radians(cam.yaw)) * cos(glm::radians(cam.pitch));
+                direction.y = sin(glm::radians(cam.pitch));
+                direction.z = sin(glm::radians(cam.yaw)) * cos(glm::radians(cam.pitch));
+                cam.front = glm::normalize(direction); 
             }
-
-           
-
+        
         }
 
         if(forward == true)
         {
-            cam_pos +=  center * speed;
+            cam.pos +=  cam.front * speed;
         }
 
         if(backwards == true)
         {
-            cam_pos -= center * speed;
+            cam.pos -= cam.front * speed;
         }
 
         if(left == true)
         {
-            cam_pos += glm::cross(up, center) * speed;
+            cam.pos += glm::cross(cam.up, cam.front) * speed;
         }
 
         if(right == true)
         {
 
-            cam_pos += glm::cross(center, up) * speed;
+            cam.pos += glm::cross(cam.front, cam.up) * speed;
         }
+
         renderer.begin();
 
         renderer.push_vertices(positions);
-        GLint model_matrix_location = glGetUniformLocation(renderer.render_shader.id, "u_ModelMatrix"); 
-
-        if( model_matrix_location >= 0) {
-        }
-        else{
-            std::cout << "UNIFORM: Canoot find u_ModelMatrix" << std::endl;
-        }
-
-        GLint perspective_matrix_location = glGetUniformLocation(renderer.render_shader.id, "u_PerspectiveMatrix");
-
-
-        if( model_matrix_location >= 0) {
-        }
-        else{
-            std::cout << "UNIFORM: Canoot find u_PerspectiveMatrix" << std::endl;
-        }
-
-        GLint view_matrix_location = glGetUniformLocation(renderer.render_shader.id, "u_ViewMatrix");
-
-
-        if( view_matrix_location >= 0) {
-        }
-        else{
-            std::cout << "UNIFORM: Canoot find u_ViewMatrix" << std::endl;
-        }
-        
-        glm::mat4 perspective_matrix = glm::perspective(glm::radians(45.0f), (float)640/(float)480, 0.1f, 100.0f);
-        glm::mat4 model_matrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -1.5f));
-        glm::mat4 view_matrix = glm::lookAt(cam_pos,cam_pos + center, up);
-
-        glUniformMatrix4fv(model_matrix_location, 1, GL_FALSE, &model_matrix[0][0]);
-        glUniformMatrix4fv(perspective_matrix_location, 1, GL_FALSE, &perspective_matrix[0][0]);
-        glUniformMatrix4fv(view_matrix_location, 1, GL_FALSE, &view_matrix[0][0]);
-        
+        cam.update(&renderer);
 
         renderer.end();
 

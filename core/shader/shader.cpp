@@ -1,6 +1,6 @@
 #include "shader.h"
-Shader::Shader(){
 
+Shader::Shader(){
 }
 
 Shader::Shader(const char* vertex_shader, const char* fragment_shader){
@@ -18,45 +18,36 @@ Shader::Shader(const char* vertex_shader, const char* fragment_shader){
 
 }
 
-// TODO make get shader result a seperate function
-void Shader::compile_shader(){
+void Shader::check_error(u32 id, ShaderType type) {
+    int result, length;
+    glc(glGetShaderiv(id, GL_COMPILE_STATUS, &result));
+
+    if(result == GL_FALSE) {
+        glc(glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length));
+        char message[length];
+
+        glc(glGetShaderInfoLog(id, length, &length, message));
+        
+        if (type == VERTEX) {
+            std::cout << "FAILED TO COMPILE VERTEX SHADER" << std::endl;
+            std::cout << message << std::endl;
+        }
+        else{
+            std::cout << "FAILED TO COMPILE FRAGMENT SHADER" << std::endl;
+            std::cout << message << std::endl;
+        }
+    }
+}
+
+void Shader::compile(){
     u32 fs = this->fs;
     u32 vs = this->vs;
 
     glc(glCompileShader(fs));
     glc(glCompileShader(vs));
     
-    int vs_result, vs_length;
-    glc(glGetShaderiv(vs, GL_COMPILE_STATUS, &vs_result));
-
-    if(vs_result == GL_FALSE){
-        glc(glGetShaderiv(vs, GL_INFO_LOG_LENGTH, &vs_length));
-
-        char vs_message[vs_length];
-
-        glc(glGetShaderInfoLog(vs, vs_length, &vs_length, vs_message));
-
-        std::cout << "FAILED TO COMPILE VERTEX SHADER" << std::endl;
-
-        std::cout << vs_message << std::endl;
-
-    }
-
-    int fs_result, fs_length;
-    glc(glGetShaderiv(fs, GL_COMPILE_STATUS, &fs_result));
-
-    if(vs_result == GL_FALSE){
-        glc(glGetShaderiv(fs, GL_INFO_LOG_LENGTH, &fs_length));
-
-        char fs_message[fs_length];
-
-        glc(glGetShaderInfoLog(fs, fs_length, &fs_length, fs_message));
-
-        std::cout << "FAILED TO COMPILE FRAGMENT SHADER" << std::endl;
-
-        std::cout << fs_message << std::endl;
-
-    }
+    this->check_error(fs, FRAGMENT);
+    this->check_error(vs, VERTEX);
 
     glc(glAttachShader(this->id, this->vs));
     glc(glAttachShader(this->id, this->fs));
