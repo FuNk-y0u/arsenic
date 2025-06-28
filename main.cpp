@@ -23,6 +23,7 @@ int main()
 "uniform mat4 u_ViewMatrix;\n"
 "out vec2 v_tex_coords;\n"
 "out float v_tex_id;\n"
+
 "void main(){\n"
 "   gl_Position = u_PerspectiveMatrix * u_ViewMatrix * u_ModelMatrix * vec4(position, 0.0f, 1.0f);\n"
 "   v_tex_coords = tex_coords;\n"
@@ -34,31 +35,29 @@ int main()
 "layout(location=0) out vec4 color;\n"
 "in vec2 v_tex_coords;\n"
 "in float v_tex_id;\n"
-
 "uniform sampler2D textures[32];\n"
 "void main(){\n"
 "   int id = int(v_tex_id);\n"
-"   //color = texture(textures[id], v_tex_coords);\n"
-"   color = vec4(1.0f, 1.0f, 1.0f, 1.0f);\n"
+"   color = texture(textures[id], v_tex_coords);\n"
 "}\n";
 
     Renderer renderer = Renderer(
         (Rspec) {
-            { {GL_FLOAT,2}, {GL_FLOAT, 2}, {GL_FLOAT, 1} },
+            { {GL_FLOAT,2}, {GL_FLOAT, 2}, {GL_FLOAT,1}},
             1000,
             { .vertex_shader = vertex_shader, .fragment_shader = fragment_shader} 
         }
     );
 
-    Vertices positions = {
-    // Position      // TexCoord
-    -0.5f, -0.5f,     0.0f, 0.0f, 1.0f,  // Bottom-left
-    -0.5f,  0.5f,     0.0f, 1.0f,  1.0f,// Top-left
-     0.5f,  0.5f,     1.0f, 1.0f,  1.0f,// Top-right
 
-    -0.5f, -0.5f,     0.0f, 0.0f,  1.0f, // Bottom-left
-     0.5f,  0.5f,     1.0f, 1.0f,  1.0f, // Top-right
-     0.5f, -0.5f,     1.0f, 0.0f,   1.0f// Bottom-right    
+    Vertices positions = {
+        -0.5f,  0.5f,    0.0f, 1.0f,   1.0f, // Top Left
+        -0.5f, -0.5f,    0.0f, 0.0f,   1.0f, // Bottom Left
+        0.5f,  0.5f,    1.0f, 1.0f,   1.0f, // Top Right
+
+        -0.5f, -0.5f,    0.0f, 0.0f,   1.0f, // Bottom Left
+        0.5f, -0.5f,    1.0f, 0.0f,   1.0f, // Bottom Right
+        0.5f,  0.5f,    1.0f, 1.0f,   1.0f  // Top Right
     };
 
     Texture tex = Texture("bin/error.png", true);
@@ -74,7 +73,7 @@ int main()
     bool left = false;
     bool right = false;
 
-    i32 samplers[32];
+   i32 samplers[32];
 
     for (int i = 0; i < 32; i++) {
         samplers[i] = i;

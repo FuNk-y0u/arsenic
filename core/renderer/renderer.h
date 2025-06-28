@@ -22,7 +22,7 @@ struct Rspec{
 typedef std::vector<f32> Vertices;
 
 class Renderer{
-    private:
+    public:
         // Renderer specifications 
         Rspec spec;
 
@@ -47,6 +47,5 @@ class Renderer{
         void push_vertices(Vertices& vertices);
         void begin();
         void end();
-        ~Renderer();
 };
 

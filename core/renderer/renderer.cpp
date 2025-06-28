@@ -10,7 +10,7 @@ Renderer::Renderer(Rspec specs) {
     this->spec = specs;
     this->max_vertex_buffer_size = specs.max_vertices;
     this->vertex_buffer_index = 0;
-    this->vertex_buffer = (float*) malloc(specs.max_vertices * unit_size);
+
     this->render_shader = Shader(this->spec.shader_src.vertex_shader, this->spec.shader_src.fragment_shader);
     this->render_shader.compile();
     
@@ -26,6 +26,8 @@ Renderer::Renderer(Rspec specs) {
         this->vertices_count += i->count;
     }
 
+    this->vertex_buffer = (float*) malloc(specs.max_vertices * unit_size);
+
     glc(glBufferData(GL_ARRAY_BUFFER, specs.max_vertices * unit_size, NULL, GL_DYNAMIC_DRAW));
     
     // Calculating stride
@@ -33,6 +35,7 @@ Renderer::Renderer(Rspec specs) {
        glc(glEnableVertexAttribArray(count));
        glc(glVertexAttribPointer(count, i->count, i->type, GL_FALSE, unit_size, (const void*) stride));
        stride += sizeof(i->type) * i->count;
+       count += 1;
     }
 
     glc(glBindVertexArray(0));
@@ -43,7 +46,7 @@ void Renderer::begin() {
 
     this->vertex_buffer_index = 0;
     glc(glClear(GL_COLOR_BUFFER_BIT));
-    glc(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
+    glc(glClearColor(0.46f, 0.46f, 0.46f, 1.0f));
     glc(glBindBuffer(GL_ARRAY_BUFFER, this->vb));
     glc(glBindVertexArray(this->vao));
     this->render_shader.bind();
@@ -69,9 +72,5 @@ void Renderer::push_vertices(Vertices& vertices) {
         this->vertex_buffer[this->vertex_buffer_index] = *i;
         this->vertex_buffer_index += 1;
     } 
-}
-
-Renderer::~Renderer(){
-    free(this->vertex_buffer);
 }
 
